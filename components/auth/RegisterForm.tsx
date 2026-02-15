@@ -8,10 +8,11 @@ import {
 } from "@radix-ui/react-icons";
 import { useState } from "react";
 import { ValidFormRegister } from "@/validation/ValidForm";
+import axios from "axios";
 
 const RegisterForm = () => {
   const [form, setForm] = useState({
-    nameUser: "",
+    name: "",
     email: "",
     password: "",
   });
@@ -20,17 +21,20 @@ const RegisterForm = () => {
     message: "",
   });
 
-  const onSubmit = (e: any) => {
+  const onSubmit = async (e: any) => {
     e.preventDefault();
-    const res = ValidFormRegister(form.nameUser, form.email, form.password);
+    const res = ValidFormRegister(form.name, form.email, form.password);
 
     if (res.error) {
       setError({ ...error, error: res.error, message: res.message });
+
+      setTimeout(() => {
+        setError({ ...error, error: false, message: "" });
+      }, 3000);
     }
 
-    setTimeout(() => {
-      setError({ ...error, error: false, message: "" });
-    }, 3000);
+    const registerRes = await axios.post("/api/auth/register", form);
+    console.log(registerRes);
   };
 
   return (
@@ -43,7 +47,7 @@ const RegisterForm = () => {
           type="text"
           placeholder="Juan Perez"
           autoFocus
-          onChange={(e) => setForm({ ...form, nameUser: e.target.value })}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
         >
           <TextField.Slot>
             <PersonIcon width="16" height="16" />
@@ -82,7 +86,9 @@ const RegisterForm = () => {
           </div>
         )}
 
-        <Button type="submit" mt="4">Registrarme</Button>
+        <Button type="submit" mt="4">
+          Registrarme
+        </Button>
       </Flex>
     </form>
   );

@@ -9,6 +9,8 @@ import {
 import { useState } from "react";
 import { ValidFormRegister } from "@/validation/ValidForm";
 import axios from "axios";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const RegisterForm = () => {
   const [form, setForm] = useState({
@@ -20,6 +22,7 @@ const RegisterForm = () => {
     error: false,
     message: "",
   });
+  const router = useRouter();
 
   const onSubmit = async (e: any) => {
     e.preventDefault();
@@ -34,7 +37,28 @@ const RegisterForm = () => {
     }
 
     const registerRes = await axios.post("/api/auth/register", form);
-    console.log(registerRes);
+    if (registerRes.status === 201) {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: form.email,
+        password: form.password,
+      });
+
+      if (result?.error) {
+        setError({ ...error, error: true, message: result.error });
+        setTimeout(() => {
+          setError({ ...error, error: false, message: "" });
+        }, 3000);
+        return;
+      }
+      router.push("/dashboard");
+    } else {
+      setError({ ...error, error: true, message: registerRes.data.message });
+      setTimeout(() => {
+        setError({ ...error, error: false, message: "" });
+      }, 3000);
+      return;
+    }
   };
 
   return (

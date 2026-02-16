@@ -2,7 +2,9 @@
 import { Button, Flex, TextField } from "@radix-ui/themes";
 import { EnvelopeClosedIcon, LockClosedIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
-import {ValidFormLogin} from "@/validation/ValidForm";
+import { ValidFormLogin } from "@/validation/ValidForm";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const LoginForm = () => {
   const [form, setForm] = useState({
@@ -14,17 +16,42 @@ const LoginForm = () => {
     message: "",
   });
 
-  const onSubmit = (e: any) => {
+  const router = useRouter();
+  const onSubmit = async (e: any) => {
     e.preventDefault();
+    //validacion
     const res = ValidFormLogin(form.email, form.password);
 
     if (res.error) {
-      setError({ ...error, error: res.error, message: res.message });
+      setError({ error: true, message: res.message });
+
+      setTimeout(() => {
+        setError({ error: false, message: "" });
+      }, 3000);
+
+      return;
     }
 
-    setTimeout(() => {
-      setError({ ...error, error: false, message: "" });
-    }, 3000);
+    //Consulta a bd
+    const loginRes = await signIn("credentials", {
+      redirect: false,
+      email: form.email,
+      password: form.password,
+    });
+
+    if (!loginRes?.ok) {
+      setError({
+        error: true,
+        message: `${loginRes?.error}`,
+      });
+      setTimeout(() => {
+        setError({ error: false, message: "" });
+      }, 3000);
+
+      return;
+    }
+
+    router.push("/dashboard");
   };
 
   return (
@@ -63,7 +90,9 @@ const LoginForm = () => {
             <p className="text-red-500 text-base ">{error.message}</p>
           </div>
         )}
-        <Button type="submit" mt="4" className="!cursor-pointer">Entrar</Button>
+        <Button type="submit" mt="4" className="!cursor-pointer">
+          Entrar
+        </Button>
       </Flex>
     </form>
   );

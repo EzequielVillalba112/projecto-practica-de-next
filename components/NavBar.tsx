@@ -11,7 +11,6 @@ const Navbar = () => {
   const pathname = usePathname();
   const { data: session } = useSession();
 
-  //   const isActive = pathname === item.href;
   return (
     <nav className="sticky top-0 z-50 w-full bg-slate-950 backdrop-blur">
       <div className="mx-auto max-w-6xl px-4">

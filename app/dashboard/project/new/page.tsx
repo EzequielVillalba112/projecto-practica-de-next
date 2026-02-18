@@ -10,11 +10,14 @@ import {
   Card,
 } from "@radix-ui/themes";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const NewTask = () => {
+  const router = useRouter();
   const params = useParams();
   const [form, setForm] = useState({
     title: "",
@@ -29,7 +32,32 @@ const NewTask = () => {
     message: "",
   });
 
-  console.log(params);
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        if (params.projectId) {
+          const res = await axios.get(`/api/project/${params.projectId}`);
+
+          if (res.status === 200) {
+            setForm({
+              title: res.data.title,
+              description: res.data.description,
+            });
+          } else {
+            toast.error(res.data.message);
+            router.push("/dashboard");
+          }
+        }
+      } catch (error) {
+        if (error) {
+          toast.error("Error al obtener el proyecto" + error);
+          router.push("/dashboard");
+        }
+      }
+    };
+
+    getData();
+  }, []);
 
   const onSubmit = async (e: any) => {
     e.preventDefault();
@@ -57,10 +85,43 @@ const NewTask = () => {
         return;
       } else {
         setError({ error: true, message: res.data.message });
+        setTimeout(() => {
+          setError({ error: false, message: "" });
+        }, 2000);
+
+        return;
       }
-    }else{
-      console.log("Editando");
-      
+    } else {
+      try {
+        const res = await axios.put(`/api/project/${params.projectId}`, form);
+
+        if (res.status === 200) {
+          toast.success("Proyecto actualizado con exito");
+          router.push("/dashboard");
+        }
+
+      } catch (error) {
+        if (error) {
+          toast.error("Error al actualizar el proyecto");
+          router.push("/dashboard");
+        }
+      }
+    }
+  };
+
+  const handleDelete = async (idProject: string) => {
+    try {
+      const res = await axios.delete(`/api/project/${idProject}`);
+
+      if (res.status === 200) {
+        toast.success("Proyecto eliminado con exito");
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      if (error) {
+        toast.error("Error al eliminar el proyecto");
+        router.push("/dashboard");
+      }
     }
   };
 
@@ -104,18 +165,24 @@ const NewTask = () => {
             <Button type="submit" className="!cursor-pointer">
               {params.projectId ? "Editar proyecto" : "Crear proyecto"}
             </Button>
-            {params.projectId && (
-              <Button type="submit" className="!cursor-pointer" color="red">
-                Eliminar proyecto
-              </Button>
+            {!params.projectId && (
+              <Link
+                href="/dashboard"
+                className="!mt-2 text-blue-400 cursor-pointer"
+              >
+                Volver a dashboard {"->"}
+              </Link>
             )}
-            <Link
-              href="/dashboard"
-              className="mt-1 cursor-pointer text-blue-500 hover:underline"
-            >
-              Volver al dashboard {"->"}
-            </Link>
           </form>
+          {params.projectId && (
+            <Button
+              className="!cursor-pointer !w-full !mt-4"
+              color="red"
+              onClick={() => handleDelete(params.projectId as string)}
+            >
+              Eliminar proyecto
+            </Button>
+          )}
         </Card>
       </Flex>
     </Container>

@@ -3,6 +3,7 @@ import "@/app/globals.css";
 import { Theme } from "@radix-ui/themes";
 import Navbar from "@/components/NavBar";
 import ContextProvider from "@/context/GlobalContext";
+import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -15,6 +16,7 @@ export default function RootLayout({
         <body>
           <Navbar />
           <Theme appearance={"dark"}>{children}</Theme>
+          <Toaster />
         </body>
       </ContextProvider>
     </html>

@@ -14,7 +14,6 @@ export const authOptions: AuthOptions = {
             async authorize(credentials, req) {
                 const { email, password } = credentials as { email: string, password: string };
                 const userFound = await prisma.user.findUnique({ where: { email: email } })
-                console.log(userFound);
 
                 if (!userFound) throw new Error('Credeciales incorrectas');
 

@@ -1,8 +1,13 @@
 "use client";
 
-import type { Project } from "@prisma/client";
 import { Card, Heading, Text } from "@radix-ui/themes";
 import { useRouter } from "next/navigation";
+
+interface Project {
+  id: number;
+  title: string;
+  description: string;
+}
 
 interface Props {
   project: Project;

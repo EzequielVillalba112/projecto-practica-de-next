@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -25,13 +24,20 @@ export async function GET(
 
         return NextResponse.json(project, { status: 200 });
 
-    } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            if (error.code === "P2025") {
-                return NextResponse.json({ message: "Proyecto no encontrado" }, { status: 404 })
-            }
+    } catch (error: any) {
+        if (error?.code === "P2025") {
+            return NextResponse.json(
+                { message: "Proyecto no encontrado" },
+                { status: 404 }
+            );
         }
+
+        return NextResponse.json(
+            { message: "Error del servidor" },
+            { status: 500 }
+        );
     }
+
 }
 
 export async function PUT(
@@ -52,15 +58,20 @@ export async function PUT(
 
         return NextResponse.json(updateData, { status: 200 });
 
-    } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            if (error.code === "P2025") {
-                return NextResponse.json({ message: "Proyecto no encontrado" }, { status: 404 })
-            }
+    } catch (error: any) {
+        if (error?.code === "P2025") {
+            return NextResponse.json(
+                { message: "Proyecto no encontrado" },
+                { status: 404 }
+            );
         }
 
-        return NextResponse.json({ message: "Error al actualizar el proyecto" }, { status: 500 })
+        return NextResponse.json(
+            { message: "Error del servidor" },
+            { status: 500 }
+        );
     }
+
 }
 
 export async function DELETE(
@@ -79,13 +90,18 @@ export async function DELETE(
         }
 
         return NextResponse.json({ message: "Proyecto eliminado" }, { status: 200 });
-    } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            if (error.code === "P2025") {
-                return NextResponse.json({ message: "Proyecto no encontrado" }, { status: 404 })
-            }
+    } catch (error: any) {
+        if (error?.code === "P2025") {
+            return NextResponse.json(
+                { message: "Proyecto no encontrado" },
+                { status: 404 }
+            );
         }
 
-        return NextResponse.json({ message: "Error al eliminar el proyecto" }, { status: 500 })
+        return NextResponse.json(
+            { message: "Error del servidor" },
+            { status: 500 }
+        );
     }
+
 }

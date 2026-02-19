@@ -4,6 +4,8 @@ import { Container, Grid } from "@radix-ui/themes";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 import ProjectCard from "@/components/project/ProjectCard";
+import { Project } from "@prisma/client";
+
 
 async function loadProjects(userId: string) {
   const projects = await prisma.project.findMany({
@@ -30,7 +32,7 @@ const Dashboard = async () => {
     <Container>
       <HeaderDashboard />
       <Grid columns="3" gap="4" className=" p-4">
-        {projects.map((project) => (
+        {projects.map((project: Project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
       </Grid>
